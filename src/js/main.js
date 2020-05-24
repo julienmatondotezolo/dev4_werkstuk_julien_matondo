@@ -139,8 +139,8 @@ $(document).ready(function () {
                             <article>
                                 <h1>${q.name}</h1>
                                 <section>${q["link-to-video"].metadata.html}</section>
-                                <p class="lead">${q["social-share-description"]}</p>
                                 ${q["key-takeaways"]}
+                                <p class="lead">${q["social-share-description"]}</p>
                                 <a href="/" class="btn btn-lg btn-primary" href="/docs/4.5/components/navbar/" role="button">Go back »</a>
                             </article>
                         </div>`
