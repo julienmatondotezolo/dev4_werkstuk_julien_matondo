@@ -6,6 +6,7 @@ $(document).ready(function () {
     // ==============  Click on genre  ============== //
     function clickedGenre() {
         let genreArray = [];
+        let ageArray = [];
         $('.genre-btn').click(function (e) {
             e.preventDefault();
             $(this).toggleClass("btn-dark btn-primary");
@@ -20,7 +21,8 @@ $(document).ready(function () {
                     return value != genreName;
                 });
             }
-            genresById(genreArray);
+            console.log(genreArray);
+            genresByName(genreArray);
         });
     }
 
@@ -33,6 +35,7 @@ $(document).ready(function () {
             type: 'json',
             success: function (data) {
                 allData = data;
+                cachedData = data;
                 getAllGenres(printRandomData(data));
             },
             error: function (request, error) {
@@ -44,8 +47,8 @@ $(document).ready(function () {
     function getAllGenres(data) {
         let genres = [];
         for (let q of allData) {
-            let data = q.genre;
-            let capitalize = capitalizeString(data);
+            let genre = q.genre;
+            let capitalize = capitalizeString(genre);
             let trimedString = trimString(capitalize);
             genres.push(trimedString);
         }
@@ -53,31 +56,15 @@ $(document).ready(function () {
         makeFilterGenres(genres)
     }
     // ==============  Get genre by id  ============== //
-    function genresById(genreArray) {
-        let dataGenre = [];
-        let ageFilter = [];
-        for (let array in genreArray) {
-            for (let q of allData) {
-                let genre = capitalizeString(q.genre)
-                if (genre == genreArray[array]) {
-                    dataGenre.push(q)
-                }
-            }
-            if ('adults' == genreArray[array]) {
-                ageFilter.push(genreArray[array]);
-                for (let q of allData) {
-                    dataGenre.push(q)
-                }
-            } else if ('kids' == genreArray[array]) {
-                ageFilter.push(genreArray[array]);
-                for (let q of allData) {
-                    dataGenre.push(q)
-                }
-            }
+    function genresByName(genreArray) {
+        console.log(typeof genreArray !== 'undefined' && genreArray.length == 0);
+        if( typeof genreArray !== 'undefined' && genreArray.length == 0 ) {
+            $("#data").empty();
+            printRandomData(allData);
+        } else {
+            $("#data").empty();
+            printData(filterByGenre(genreArray));
         }
-
-        $("#data").empty();
-        printData(ageFilter, dataGenre);
     }
     // !PRINT FUNCTIONS
     // ==============  create random cards
@@ -88,17 +75,15 @@ $(document).ready(function () {
             randomArray.push(dataArray[Math.floor(Math.random() * dataArray.length)]);
         }
         randomArray = filterDublicates(randomArray);
-        printData('', randomArray);
+        printData(randomArray);
     }
     // ==============  Make Cards by genre
-    function printData(ageArray, dataGenre) {
+    function printData(dataGenre) {
         dataGenre = sortByName(dataGenre, "name", "asc");
-        let age;
-        let html;
+        console.log(dataGenre);
 
         for (let q of dataGenre) {
-            age = parseInt(q.age);
-            html = `<div class="card col-3" style="width: 18rem;">
+            let html = `<div class="card col-3" style="width: 18rem;">
                         <img src="${q.thumbnail.url}" class="card-img-top" alt="...">
                         <div class="card-body">
                             <p>${q.genre}</p>
@@ -109,23 +94,7 @@ $(document).ready(function () {
                         </div>
                     </div>`;
 
-            if(typeof ageArray !== 'undefined' && ageArray.length > 0) {
-                if ( ageArray.includes('kids') ) {
-                    if ( age < 18 && !isNaN(age) ) {
-                        $('main #data').append(html);
-                    }
-                }
-                if ( ageArray.includes('adults') ) {
-                    if ( isNaN(age) ) {
-                        $('main #data').append(html);
-                    }
-                }
-                if ( ageArray.includes('kids') && ageArray.includes('adults') ) {
-                    $('main #data').append(html);
-                };
-            } else {
-                $('main #data').append(html);
-            }
+            $('main #data').append(html);
         }
 
     }
@@ -136,6 +105,18 @@ $(document).ready(function () {
             $('main .genre-filter').append(`<a href='#${q}' class="btn btn-dark genre-btn m-2" data-state="false" data-name="${q}">${q}</a>`);
         }
         clickedGenre();
+    }
+    function filterByGenre(genreArray) {
+        let dataGenre = [];
+        for (let array in genreArray) {
+            for (let q of allData) {
+                let genre = capitalizeString(q.genre)
+                if (genre == genreArray[array]) {
+                    dataGenre.push(q)
+                }
+            }
+        }
+        return dataGenre;
     }
 
     // !STRING FUNCTIONS
