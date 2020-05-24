@@ -33,7 +33,7 @@ let getData = () => {
 	return new Promise(function (resolve, reject) {
 		axios.get(apiUrl + '/items', settings)
 			.then((json) => {
-				let results = json.data;
+				let results = json.data.items;
 				resolve(results);
 			})
 	});

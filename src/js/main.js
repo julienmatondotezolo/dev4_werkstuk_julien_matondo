@@ -3,28 +3,37 @@ $(document).ready(function () {
     getAllData();
 
     // !ACTIONS
-    //=======Click on genre=======//
+    // ==============  Click on genre  ============== //
     function clickedGenre() {
         let genreArray = [];
         $('.genre-btn').click(function (e) {
             e.preventDefault();
             $(this).toggleClass("btn-dark btn-primary");
-            const genreId = $(this).data("name");
+            const genreName = $(this).data("name");
+            if(genreName == 'adult' || genreName == 'kids') {
+                ageFilter(genreName);
+            }
+
             $(this).attr('data-state', $(this).attr('data-state') == 'true' ? 'false' : 'true');
             let checkIfActive = $(this).attr('data-state');
+            
             if (checkIfActive === 'true') {
-                genreArray.push(genreId);
+                genreArray.push(genreName);
             } else {
                 genreArray = $.grep(genreArray, function (value) {
-                    return value != genreId;
+                    return value != genreName;
                 });
             }
             genresById(genreArray);
         });
     }
+    // ==============  Age filter  ============== //
+    function ageFilter(name) {
+       console.log(name);
+    }
 
     // !API CALLS
-    //=======Get  all data=======//
+    // ==============  Get  all data  ============== //
     function getAllData() {
         $.ajax({
             url: 'http://localhost:3000/allData',
@@ -39,7 +48,7 @@ $(document).ready(function () {
             }
         });
     }
-    //=======Get all genres=======//
+    // ==============  Get all genres ============== //
     function getAllGenres(data) {
         let genres = [];
         for (let q of allData) {
@@ -48,11 +57,10 @@ $(document).ready(function () {
             let trimedString = trimString(capitalize);
             genres.push(trimedString);
         }
-        console.log(genres);
         genres = sortByString(filterDublicates(genres));
         makeFilterGenres(genres)
     }
-    //=======Get  genre by id=======//
+    // ==============  Get genre by id  ============== //
     function genresById(genreArray) {
         let dataGenre = [];
         for (let array in genreArray) {
@@ -65,11 +73,11 @@ $(document).ready(function () {
         }
     
         $("#data").empty();
-        makeCards(dataGenre);
+        printData(dataGenre);
     }
 
     // !PRINT FUNCTIONS
-    // create random cards
+    // ==============  create random cards
     function makeRandomCards(dataArray) {
         const number = 10;
         let randomArray = [];
@@ -77,20 +85,25 @@ $(document).ready(function () {
             randomArray.push(dataArray[Math.floor(Math.random() * dataArray.length)]);
         }
         randomArray = filterDublicates(randomArray);
-        makeCards(randomArray);
+        printData(randomArray);
     }
-    // Make Cards by genre
-    function makeCards(dataGenre) {
+    // ==============  Make Cards by genre
+    function printData(dataGenre) {
         dataGenre = sortByName(dataGenre, "name", "asc");
         for (let q of dataGenre) {
-            $card = `<div class="card m-2" style="width: 18rem;"><img src="${q.thumbnail.url}" class="card-img-top" alt="..."><div class="card-body"><h5 class="card-title">${q.name}</h5><p class="card-text">${q["social-share-description"]}</p>
-                    <a href="${q["link-to-video"].url}" class="btn btn-primary">Go somewhere</a>
-                </div>
-                </div>`;
+            $card = `<div class="card col-3" style="width: 18rem;">
+                        <img src="${q.thumbnail.url}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <p>${q.age}</p>
+                            <h5 class="card-title">${q.name}</h5>
+                            <p class="card-text">${q["social-share-description"]}</p>
+                            <a href="${q["link-to-video"].url}" class="btn btn-primary">Go somewhere</a>
+                        </div>
+                    </div>`;
             $('main #data').append($card);
         }
     }
-    // Make Filter with genres
+    // ==============  Make Filter with genres
     function makeFilterGenres(genres) {
         for (let q of genres) {
             $('main .genre-filter').append(`<a href='#${q}' class="btn btn-dark genre-btn m-2" data-state="false" data-name="${q}">${q}</a>`);
@@ -99,29 +112,29 @@ $(document).ready(function () {
     }
 
     // !STRING FUNCTIONS
-    // Filter Dublicate
+    // ==============  Filter Dublicate  ============== //
     let filterDublicates = (array) => {
         let filtered = _.uniq(array);
         filtered = removeEmpty(filtered, "");
         return filtered;
     }
-    // Remove empty
+    // ==============  Remove empty  ============== //
     let removeEmpty = (array, e) => {
         return _.without(array, e);
     }
-    // Trim string
+    // ==============  Trim string  ============== //
     let trimString = (str) => {
         return str.trim()
     }
-    // Capitalize Dublicate
+    // ==============  Capitalize Dublicate  ============== //
     let capitalizeString = (str) => {
         return _.capitalize(str);
     }
-    // Sort by string
+    // ==============  Sort by string  ============== //
     let sortByString = (str) => {
         return _.sortBy(str);
     }
-    // Sort by name
+    // ==============  Sort by name  ============== //
     let sortByName = (str, param, sort) => {
         return _.orderBy(str, [param], [sort]);
     }
