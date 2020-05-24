@@ -57,14 +57,20 @@ $(document).ready(function () {
         let dataGenre = [];
         let ageFilter = [];
         for (let array in genreArray) {
-            if ('adults' == genreArray[array]) {
-                ageFilter.push(genreArray[array]);
-            } else if ('kids' == genreArray[array]) {
-                ageFilter.push(genreArray[array]);
-            }
             for (let q of allData) {
                 let genre = capitalizeString(q.genre)
                 if (genre == genreArray[array]) {
+                    dataGenre.push(q)
+                }
+            }
+            if ('adults' == genreArray[array]) {
+                ageFilter.push(genreArray[array]);
+                for (let q of allData) {
+                    dataGenre.push(q)
+                }
+            } else if ('kids' == genreArray[array]) {
+                ageFilter.push(genreArray[array]);
+                for (let q of allData) {
                     dataGenre.push(q)
                 }
             }
