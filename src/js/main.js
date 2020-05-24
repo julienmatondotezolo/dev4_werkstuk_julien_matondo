@@ -104,33 +104,66 @@ $(document).ready(function () {
 
         for (let q of dataGenre) {
             let html = `<div data-genre='${capitalizeString(q.genre)}' class="card ${capitalizeString(q.genre)} col-3" style="width: 18rem;">
-                        <section>${q["link-to-video"].metadata.html}</section>
+                        <section> <img src="${q["social-share-image"].url}"> </section>
                         <div class="card-body">
                             <h5 class="card-title bold">${q.name}</h5>
                             <p> ${q["video-length"]} </p>
-                            <a href="" data-slug='${q.slug}' class="btn btn-primary info">Lees meeer</a>
+                            <a href="?slug=${q._id}" class="btn btn-primary info">Lees meeer</a>
                         </div>
                     </div>`;
 
             $('main #data').append(html);
         }
-
-        $('.info').click(function (e) { 
-            e.preventDefault();
-            let clickedElement = $(this).attr('data-slug');
-            console.log(clickedElement);
-        });
-
-        $('.card iframe').css({
+        $('.card img').css({
             "width": "100%",
-            "height": "100%"
         })
-        countCard();
 
+        let urlGet = getUrlParameter('slug');
+
+        if (urlGet != undefined) {
+            printDetailData(allData , urlGet)
+        }
+
+        countCard();
     }
 
-    function printDetailData(dataGenre) {
-
+    function printDetailData(data , detailElement) {
+        {/* <section>${q["link-to-video"].metadata.html}</section> */}
+        let html;
+        console.log(detailElement);
+        for (let q of data) {
+            console.log(q._id)
+            if(q._id == detailElement) {
+                console.log('ok')
+                html = `<div class="jumbotron">
+                            <article>
+                                <h1>${q.name}</h1>
+                                <section>${q["link-to-video"].metadata.html}</section>
+                                <p class="lead">${q["social-share-description"]}</p>
+                                ${q["key-takeaways"]}
+                                <a href="/" class="btn btn-lg btn-primary" href="/docs/4.5/components/navbar/" role="button">Go back »</a>
+                            </article>
+                        </div>`
+                        $(html).appendTo('body');
+            } else {
+                console.log('nok')
+            }
+        }
+        $('.jumbotron').css({
+            "position": "fixed",
+            "top": "50%",
+            "left": "50%",
+            "transform": "translate(-50%, -50%)"
+        })
+        $('.jumbotron').css({
+            "height": "90%",
+            "max-height": 540,
+            "overflow": "auto"
+        })
+        $('.jumbotron iframe').css({
+            "width": 640,
+            "height": 360
+        })
     }
     // ==============  Make Filter with genres  ============== //
     function makeFilterGenres(genres) {
@@ -216,4 +249,19 @@ $(document).ready(function () {
     let sortByName = (str, param, sort) => {
         return _.orderBy(str, [param], [sort]);
     }
+    // Get url parameter
+    function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+    };
 });
