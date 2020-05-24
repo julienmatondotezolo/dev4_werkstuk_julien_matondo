@@ -36,7 +36,6 @@ $(document).ready(function () {
             return value != name;
         });
     }
-
     // !API CALLS
     // ==============  Get  all data  ============== //
     function getAllData() {
@@ -121,10 +120,22 @@ $(document).ready(function () {
     }
     // ==============  Make Filter with genres  ============== //
     function makeFilterGenres(genres) {
+        let duplicateArray = [];
         for (let q of genres) {
-            $('main .genre-filter').append(`<a href='#${q}' class="btn btn-dark genre-btn m-2" data-state="false" data-name="${q}">${q}</a>`);
+            for (const data of allData) {
+                if (capitalizeString(q) == capitalizeString(data.genre)) {
+                    duplicateArray.push(q);
+                } else {
+                    console.log(q)
+                }
+            }
+            $('main .genre-filter').append(`<a href='#${q}' class="btn btn-dark genre-btn m-2" data-state="false" data-name="${q}">${q} (${getDuplicates(duplicateArray, q)})</a>`);
         }
         clickedGenre();
+    }
+    // ==============  FUnction to return duplicates in a number  ============== //
+    function getDuplicates(array, value) {
+        return array.filter((v) => (v === value)).length;
     }
     // ==============  Filter by selected genre  ============== //
     function filterByGenre(emptyArray, ageArray, genreArray) {
