@@ -7,22 +7,35 @@ $(document).ready(function () {
     function clickedGenre() {
         let genreArray = [];
         let ageArray = [];
+
         $('.genre-btn').click(function (e) {
             e.preventDefault();
             $(this).toggleClass("btn-dark btn-primary");
+
             const genreName = $(this).data("name");
             $(this).attr('data-state', $(this).attr('data-state') == 'true' ? 'false' : 'true');
             let checkIfActive = $(this).attr('data-state');
 
             if (checkIfActive === 'true') {
-                genreArray.push(genreName);
+                if (genreName != 'adults' && genreName != 'kids') {
+                    genreArray.push(genreName);
+                } else {
+                    ageArray.push(genreName)
+                }
             } else {
-                genreArray = $.grep(genreArray, function (value) {
-                    return value != genreName;
-                });
+                genreArray = removeElemFromArray(genreArray, genreName)
+                ageArray = removeElemFromArray(ageArray, genreName)
             }
+
             console.log(genreArray);
+            console.log(ageArray);
             genresByName(genreArray);
+        });
+    }
+    // ==============  remove element from aaray  ============== //
+    function removeElemFromArray(array, name) {
+        return array = $.grep(array, function (value) {
+            return value != name;
         });
     }
 
@@ -57,7 +70,6 @@ $(document).ready(function () {
     }
     // ==============  Get genre by id  ============== //
     function genresByName(genreArray) {
-        console.log(typeof genreArray !== 'undefined' && genreArray.length == 0);
         if( typeof genreArray !== 'undefined' && genreArray.length == 0 ) {
             $("#data").empty();
             printRandomData(allData);
@@ -80,7 +92,6 @@ $(document).ready(function () {
     // ==============  Make Cards by genre
     function printData(dataGenre) {
         dataGenre = sortByName(dataGenre, "name", "asc");
-        console.log(dataGenre);
 
         for (let q of dataGenre) {
             let html = `<div class="card col-3" style="width: 18rem;">
