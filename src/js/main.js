@@ -68,21 +68,21 @@ $(document).ready(function () {
     }
     // ==============  Get genre by id  ============== //
     function genresByName(ageArray, genreArray) {
-        let filteredData = [];
+        let emptyArray = [];
+        let filteredData;
         if( typeof genreArray !== 'undefined' && genreArray.length == 0 && typeof ageArray !== 'undefined' && ageArray.length == 0 ) {
-            $("#data").empty();
             printRandomData(allData);
         } else {
             if (typeof genreArray !== 'undefined' && genreArray.length == 0) {
                 console.log('Age buttons clicked');
                 for(let q of allData) {
-                    filteredData = filterByAge(filteredData, ageArray, q);
+                    filteredData = filterByAge(emptyArray, ageArray, q);
                 }
             } else {
-                filteredData = filterByGenre(genreArray);
+                filteredData = filterByGenre(emptyArray, ageArray, genreArray);
             }
+
             $("#data").empty();
-            console.log(filteredData);
             printData(filteredData);
         }
     }
@@ -99,6 +99,7 @@ $(document).ready(function () {
     }
     // ==============  Make Cards by genre
     function printData(dataGenre) {
+        $("#data").empty();
         dataGenre = sortByName(dataGenre, "name", "asc");
 
         for (let q of dataGenre) {
@@ -115,9 +116,9 @@ $(document).ready(function () {
 
             $('main #data').append(html);
         }
+        countCard();
 
     }
-
     // ==============  Make Filter with genres  ============== //
     function makeFilterGenres(genres) {
         for (let q of genres) {
@@ -126,21 +127,24 @@ $(document).ready(function () {
         clickedGenre();
     }
     // ==============  Filter by selected genre  ============== //
-    function filterByGenre(genreArray) {
-        let dataGenre = [];
+    function filterByGenre(emptyArray, ageArray, genreArray) {
         for (let array in genreArray) {
             for (let q of allData) {
                 let genre = capitalizeString(q.genre)
                 if (genre == genreArray[array]) {
-                    dataGenre.push(q)
-                }
+                    if(ageArray == "") {
+                        emptyArray.push(q)
+                    } else {
+                        emptyArray = filterByAge(emptyArray, ageArray, q);
+                    }
+                } 
             }
         }
-        return dataGenre;
+        return emptyArray;
     }
-// ==============  Filter by age  ============== //  
+    // ==============  Filter by age  ============== //  
     function filterByAge(emptyArray, ageArray, data) {
-        let age = parseInt(data.age)        
+        let age = parseInt(data.age);        
         for (let ageArrayName of ageArray) {
             if (ageArrayName === 'adults' && age >= 18 || ageArrayName === 'adults' && isNaN(age)) {
                 emptyArray.push(data)
@@ -150,7 +154,17 @@ $(document).ready(function () {
         }
         return emptyArray;
     }
-
+    // ==============  COUNT PRINTED DATA  ============== //  
+    function countCard() {
+        let card = $('#data .card').length;
+        if (card == 0) {
+            $('#data').empty();
+            $('#data').append(`<h3 class='card-result'>There are 0 results</h3>`);
+        } else {
+            $('.card-result').remove();
+            $('main section:first').append(`<h3 class='card-result'>Result: ${card}</h3>`);
+        }
+    }
     // !STRING FUNCTIONS
     // ==============  Filter Dublicate  ============== //
     let filterDublicates = (array) => {
