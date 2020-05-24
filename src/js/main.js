@@ -10,13 +10,9 @@ $(document).ready(function () {
             e.preventDefault();
             $(this).toggleClass("btn-dark btn-primary");
             const genreName = $(this).data("name");
-            if(genreName == 'adult' || genreName == 'kids') {
-                ageFilter(genreName);
-            }
-
             $(this).attr('data-state', $(this).attr('data-state') == 'true' ? 'false' : 'true');
             let checkIfActive = $(this).attr('data-state');
-            
+
             if (checkIfActive === 'true') {
                 genreArray.push(genreName);
             } else {
@@ -26,10 +22,6 @@ $(document).ready(function () {
             }
             genresById(genreArray);
         });
-    }
-    // ==============  Age filter  ============== //
-    function ageFilter(name) {
-       console.log(name);
     }
 
     // !API CALLS
@@ -41,7 +33,7 @@ $(document).ready(function () {
             type: 'json',
             success: function (data) {
                 allData = data;
-                getAllGenres(makeRandomCards(data));
+                getAllGenres(printRandomData(data));
             },
             error: function (request, error) {
                 console.error("Request: " + JSON.stringify(request));
@@ -63,7 +55,13 @@ $(document).ready(function () {
     // ==============  Get genre by id  ============== //
     function genresById(genreArray) {
         let dataGenre = [];
+        let ageFilter = [];
         for (let array in genreArray) {
+            if ('adults' == genreArray[array]) {
+                ageFilter.push(genreArray[array]);
+            } else if ('kids' == genreArray[array]) {
+                ageFilter.push(genreArray[array]);
+            }
             for (let q of allData) {
                 let genre = capitalizeString(q.genre)
                 if (genre == genreArray[array]) {
@@ -71,38 +69,61 @@ $(document).ready(function () {
                 }
             }
         }
-    
-        $("#data").empty();
-        printData(dataGenre);
-    }
 
+        $("#data").empty();
+        printData(ageFilter, dataGenre);
+    }
     // !PRINT FUNCTIONS
     // ==============  create random cards
-    function makeRandomCards(dataArray) {
+    function printRandomData(dataArray) {
         const number = 10;
         let randomArray = [];
         for (let i = 0; i < number; i++) {
             randomArray.push(dataArray[Math.floor(Math.random() * dataArray.length)]);
         }
         randomArray = filterDublicates(randomArray);
-        printData(randomArray);
+        printData('', randomArray);
     }
     // ==============  Make Cards by genre
-    function printData(dataGenre) {
+    function printData(ageArray, dataGenre) {
         dataGenre = sortByName(dataGenre, "name", "asc");
+        let age;
+        let html;
+
         for (let q of dataGenre) {
-            $card = `<div class="card col-3" style="width: 18rem;">
+            age = parseInt(q.age);
+            html = `<div class="card col-3" style="width: 18rem;">
                         <img src="${q.thumbnail.url}" class="card-img-top" alt="...">
                         <div class="card-body">
+                            <p>${q.genre}</p>
                             <p>${q.age}</p>
                             <h5 class="card-title">${q.name}</h5>
                             <p class="card-text">${q["social-share-description"]}</p>
                             <a href="${q["link-to-video"].url}" class="btn btn-primary">Go somewhere</a>
                         </div>
                     </div>`;
-            $('main #data').append($card);
+
+            if(typeof ageArray !== 'undefined' && ageArray.length > 0) {
+                if ( ageArray.includes('kids') ) {
+                    if ( age < 18 && !isNaN(age) ) {
+                        $('main #data').append(html);
+                    }
+                }
+                if ( ageArray.includes('adults') ) {
+                    if ( isNaN(age) ) {
+                        $('main #data').append(html);
+                    }
+                }
+                if ( ageArray.includes('kids') && ageArray.includes('adults') ) {
+                    $('main #data').append(html);
+                };
+            } else {
+                $('main #data').append(html);
+            }
         }
+
     }
+
     // ==============  Make Filter with genres
     function makeFilterGenres(genres) {
         for (let q of genres) {
