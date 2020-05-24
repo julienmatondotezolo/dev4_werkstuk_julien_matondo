@@ -12,6 +12,8 @@ $(document).ready(function () {
             e.preventDefault();
             $(this).toggleClass("btn-dark btn-primary");
 
+            let boolean = false;
+
             const genreName = $(this).data("name");
             $(this).attr('data-state', $(this).attr('data-state') == 'true' ? 'false' : 'true');
             let checkIfActive = $(this).attr('data-state');
@@ -45,7 +47,6 @@ $(document).ready(function () {
             type: 'json',
             success: function (data) {
                 allData = data;
-                cachedData = data;
                 getAllGenres(printRandomData(data));
             },
             error: function (request, error) {
@@ -86,7 +87,7 @@ $(document).ready(function () {
         }
     }
     // !PRINT FUNCTIONS
-    // ==============  create random cards
+    // ==============  create random cards  ============== //
     function printRandomData(dataArray) {
         const number = 10;
         let randomArray = [];
@@ -96,26 +97,39 @@ $(document).ready(function () {
         randomArray = filterDublicates(randomArray);
         printData(randomArray);
     }
-    // ==============  Make Cards by genre
+    // ==============  Make Cards by genre  ============== //
     function printData(dataGenre) {
         $("#data").empty();
         dataGenre = sortByName(dataGenre, "name", "asc");
 
         for (let q of dataGenre) {
-            let html = `<div class="card col-3" style="width: 18rem;">
-                        <img src="${q.thumbnail.url}" class="card-img-top" alt="...">
+            let html = `<div data-genre='${capitalizeString(q.genre)}' class="card ${capitalizeString(q.genre)} col-3" style="width: 18rem;">
+                        <section>${q["link-to-video"].metadata.html}</section>
                         <div class="card-body">
-                            <p>${q.genre}</p>
-                            <p>${q.age}</p>
-                            <h5 class="card-title">${q.name}</h5>
-                            <p class="card-text">${q["social-share-description"]}</p>
-                            <a href="${q["link-to-video"].url}" class="btn btn-primary">Go somewhere</a>
+                            <h5 class="card-title bold">${q.name}</h5>
+                            <p> ${q["video-length"]} </p>
+                            <a href="" data-slug='${q.slug}' class="btn btn-primary info">Lees meeer</a>
                         </div>
                     </div>`;
 
             $('main #data').append(html);
         }
+
+        $('.info').click(function (e) { 
+            e.preventDefault();
+            let clickedElement = $(this).attr('data-slug');
+            console.log(clickedElement);
+        });
+
+        $('.card iframe').css({
+            "width": "100%",
+            "height": "100%"
+        })
         countCard();
+
+    }
+
+    function printDetailData(dataGenre) {
 
     }
     // ==============  Make Filter with genres  ============== //
@@ -125,8 +139,6 @@ $(document).ready(function () {
             for (const data of allData) {
                 if (capitalizeString(q) == capitalizeString(data.genre)) {
                     duplicateArray.push(q);
-                } else {
-                    console.log(q)
                 }
             }
             $('main .genre-filter').append(`<a href='#${q}' class="btn btn-dark genre-btn m-2" data-state="false" data-name="${q}">${q} (${getDuplicates(duplicateArray, q)})</a>`);
@@ -175,6 +187,7 @@ $(document).ready(function () {
             $('.card-result').remove();
             $('main section:first').append(`<h3 class='card-result'>Result: ${card}</h3>`);
         }
+        return card;
     }
     // !STRING FUNCTIONS
     // ==============  Filter Dublicate  ============== //
